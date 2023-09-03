@@ -579,13 +579,12 @@ class Scraper:
 
         if all(isinstance(q, dict) for q in queries):
             data = asyncio.run(self._process(operation, list(queries), **kwargs))
-            return get_json(data, **kwargs)
+            return [get_json(t, **kwargs) for t in data]
 
         # queries are of type set | list[int|str], need to convert to list[dict]
         _queries = [{k: q} for q in queries for k, v in keys.items()]
         res = asyncio.run(self._process(operation, _queries, **kwargs))
-        data = get_json(res, **kwargs)
-        return data.pop() if kwargs.get('cursor') else flatten(data)
+        return [get_json(t, **kwargs) for t in res]
 
     async def _query(self, client: AsyncClient, operation: tuple, **kwargs) -> Response:
         keys, qid, name = operation
@@ -611,32 +610,22 @@ class Scraper:
 
     async def _paginate(self, client: AsyncClient, operation: tuple, **kwargs):
         limit = kwargs.pop('limit', math.inf)
-        cursor = kwargs.pop('cursor', None)
-        is_resuming = False
+        need_cursor = 'cursor' in kwargs
+        cursor = kwargs.pop('cursor', '')
+        max_query = kwargs.pop('max_query', 1 << 60)
         dups = 0
         DUP_LIMIT = 3
-        if cursor:
-            is_resuming = True
-            res = []
-            ids = set()
-        else:
-            try:
-                r = await self._query(client, operation, **kwargs)
-                initial_data = r.json()
-                res = [r]
-                ids = {x for x in find_key(initial_data, 'rest_id') if x[0].isnumeric()}
 
-                cursor = get_cursor(initial_data)
-            except Exception as e:
-                if self.debug:
-                    self.logger.error(f'Failed to get initial pagination data: {e}')
-                return
-        while (dups < DUP_LIMIT) and cursor:
+        res = []
+        ids = set()
+        while max_query > 0 and (dups < DUP_LIMIT) and not cursor is None:
             prev_len = len(ids)
             if prev_len >= limit:
                 break
             try:
-                r = await self._query(client, operation, cursor=cursor, **kwargs)
+                max_query -= 1
+                if cursor: kwargs['cursor'] = cursor
+                r = await self._query(client, operation, **kwargs)
                 data = r.json()
             except Exception as e:
                 if self.debug:
@@ -650,7 +639,7 @@ class Scraper:
             if prev_len == len(ids):
                 dups += 1
             res.append(r)
-        if is_resuming:
+        if need_cursor:
             return res, cursor
         return res
 

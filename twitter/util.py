@@ -74,20 +74,19 @@ def flatten(seq: list | tuple) -> list:
 
 
 def get_json(res: list[Response], **kwargs) -> list:
-    cursor = kwargs.get('cursor')
+    if 'cursor' in kwargs:
+        res, cursor = res
+
     temp = res
-    if any(isinstance(r, (list, tuple)) for r in res):
-        temp = flatten(res)
     results = []
     for r in temp:
         try:
             data = r.json()
-            if cursor:
-                results.append([data, cursor])
-            else:
-                results.append(data)
+            results.append(data)
         except Exception as e:
             print('Cannot parse JSON response', e)
+    if 'cursor' in kwargs:
+        return results, cursor
     return results
 
 
