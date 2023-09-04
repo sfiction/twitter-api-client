@@ -28,6 +28,7 @@ def unwrap_tweet(obj):
     assert obj['__typename'] == 'TimelineTweet', obj['__typename']
     assert obj['tweetDisplayType'] == 'Tweet', obj['tweetDisplayType']
     obj = obj['tweet_results']
+    if not 'result' in obj: return None
 
     def build_user(obj):
         obj = obj['user_results']
@@ -120,12 +121,13 @@ def unwrap_tweet(obj):
     return obj
 
 def unwrap_timeline_item(obj):
-    if obj['entryId'].startswith('tweet-'):
+    entry_id = obj["entryId"]
+    if entry_id.startswith('tweet-'):
         obj = obj['content']
         assert obj['entryType'] == 'TimelineTimelineItem', obj['entryType']
         assert obj['__typename'] == 'TimelineTimelineItem', obj['__typename']
-        return [unwrap_tweet(obj)]
-    elif obj['entryId'].startswith('profile-conversation'):
+        ret = [unwrap_tweet(obj)]
+    elif entry_id.startswith('profile-conversation-'):
         obj = obj['content']
         assert obj['entryType'] == 'TimelineTimelineModule', obj['entryType']
         assert obj['__typename'] == 'TimelineTimelineModule', obj['__typename']
@@ -135,7 +137,6 @@ def unwrap_timeline_item(obj):
             assert obj['entryId'].startswith('profile-conversation')
             obj = obj['item']
             ret.append(unwrap_tweet(obj))
-        return ret
     else:
         PREFIXES = [
             'promoted-tweet-',
@@ -146,6 +147,9 @@ def unwrap_timeline_item(obj):
         if all(not entry_id.startswith(prefix) for prefix in PREFIXES):
             print(f'unknown entryId {entry_id}', file=sys.stderr)
             raise Exception(f'unknown entryId {entry_id}')
+        ret = []
+    ret = [obj for obj in ret if not obj is None]
+    return ret
 
 def get_cursor(entries):
     for entry in entries:
@@ -155,6 +159,9 @@ def get_cursor(entries):
             if itemContent := content.get('itemContent'):
                 return itemContent['value']  # v2 cursor
             return content['value']  # v1 cursor
+
+def get_id(obj):
+    return obj['id']
 
 class Api(object):
     def __init__(self, req, debug=False):
@@ -199,8 +206,8 @@ class Api(object):
             if len(tweets) > count: break
 
         tweets = sorted((tweet for tweet in tweets if since < tweet['id'] <= until),
-            key=lambda tweet: tweet['id'], reverse=True)
-        tweets = [list(gp)[0] for _, gp in groupby(tweets, key=lambda tweet: tweet['id'])]
+            key=get_id, reverse=True)
+        tweets = [list(gp)[0] for _, gp in groupby(tweets, key=get_id)]
         return tweets
 
     def get_user_tweets(self, *args, **kwargs):
@@ -212,7 +219,7 @@ class Api(object):
     def get_user_timeline(self, *args, **kwargs):
         tweets = self.get_user_tweets(*args, **kwargs)
         media = self.get_user_media(*args, **kwargs)
-        timeline = [list(gp)[0] for _, gp in groupby(tweets + media, key=lambda tweet: tweet['id'])]
+        timeline = [list(gp)[0] for _, gp in groupby(sorted(tweets + media, key=get_id), key=get_id)]
         return timeline
 
 def main(req_file, screen_name, out=False, **kwargs):
