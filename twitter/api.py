@@ -1,8 +1,13 @@
 
+import json
 import sys
 from itertools import groupby
 
 from .scraper import Scraper
+
+def print_json(obj, **kwargs):
+    kwargs = {'indent': 2, 'ensure_ascii': False, 'default': str} | kwargs
+    print(json.dumps(obj, **kwargs))
 
 def Get(obj, keys, strict=False):
     if strict:
@@ -202,9 +207,7 @@ class Api(object):
         timeline = [list(gp)[0] for _, gp in groupby(tweets + media, key=lambda tweet: tweet['id'])]
         return timeline
 
-def main(req_file, screen_name, count=30, out=False):
-    import json
-
+def main(req_file, screen_name, out=False, **kwargs):
     with open(req_file, encoding='utf-8', newline='\n') as fd:
         req = fd.read()
     api = Api(req, debug=True)
@@ -212,11 +215,12 @@ def main(req_file, screen_name, count=30, out=False):
     user = api.scraper.users([screen_name])[0][0]['data']['user']['result']
     user_id = int(user['rest_id'])
 
-    tweets = api.get_user_timeline(user_id, count=count)
+    tweets = api.get_user_timeline(user_id, **kwargs)
+    #tweets = api.get_user_media(user_id, **kwargs)
     #tweets = api.scraper.tweets([user_id], limit=count, includePromotedContent=False)
     #tweets = api.scraper.media([user_id], limit=count, includePromotedContent=False)
     if out:
-        print(json.dumps(tweets, indent=2, ensure_ascii=False, sort_keys=True))
+        print_json(tweets, sort_keys=True)
 
 if __name__ == '__main__':
     sys.stdout.reconfigure(encoding='utf-8')
