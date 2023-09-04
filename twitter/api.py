@@ -137,7 +137,15 @@ def unwrap_timeline_item(obj):
             ret.append(unwrap_tweet(obj))
         return ret
     else:
-        return []
+        PREFIXES = [
+            'promoted-tweet-',
+            'who-to-follow-',
+            'cursor-bottom-',
+            'cursor-top-',
+        ]
+        if all(not entry_id.startswith(prefix) for prefix in PREFIXES):
+            print(f'unknown entryId {entry_id}', file=sys.stderr)
+            raise Exception(f'unknown entryId {entry_id}')
 
 def get_cursor(entries):
     for entry in entries:
