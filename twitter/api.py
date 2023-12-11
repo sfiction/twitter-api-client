@@ -26,7 +26,7 @@ def unwrap_tweet(obj):
     # TODO: clientEventInfo
     assert obj['itemType'] == 'TimelineTweet', obj['itemType']
     assert obj['__typename'] == 'TimelineTweet', obj['__typename']
-    assert obj['tweetDisplayType'] == 'Tweet', obj['tweetDisplayType']
+    assert obj['tweetDisplayType'] in ['Tweet', 'MediaGrid'], obj['tweetDisplayType']
     obj = obj['tweet_results']
     if not 'result' in obj: return None
 
@@ -135,6 +135,16 @@ def unwrap_timeline_item(obj):
         ret = []
         for obj in items:
             assert obj['entryId'].startswith('profile-conversation')
+            obj = obj['item']
+            ret.append(unwrap_tweet(obj))
+    elif entry_id.startswith('profile-grid-'):
+        obj = obj['content']
+        assert obj['entryType'] == 'TimelineTimelineModule', obj['entryType']
+        assert obj['__typename'] == 'TimelineTimelineModule', obj['__typename']
+        items = obj['items']
+        ret = []
+        for obj in items:
+            assert obj['entryId'].startswith('profile-grid-')
             obj = obj['item']
             ret.append(unwrap_tweet(obj))
     else:
