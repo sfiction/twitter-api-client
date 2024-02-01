@@ -50,7 +50,7 @@ class Scraper:
         """
         return self._run(Operation.UserByScreenName, screen_names, **kwargs)
 
-    def tweets_by_id(self, tweet_ids: list[int | str], **kwargs) -> list[dict]:
+    def tweets_by_id(self, tweet_ids: list, **kwargs) -> list[dict]:
         """
         Get tweet metadata by tweet ids.
 
@@ -60,7 +60,7 @@ class Scraper:
         """
         return self._run(Operation.TweetResultByRestId, tweet_ids, **kwargs)
 
-    def tweets_by_ids(self, tweet_ids: list[int | str], **kwargs) -> list[dict]:
+    def tweets_by_ids(self, tweet_ids: list, **kwargs) -> list[dict]:
         """
         Get tweet metadata by tweet ids.
 
@@ -424,7 +424,7 @@ class Scraper:
             self._download_audio(temp)
         return chat_data
 
-    async def _get_stream(self, client: AsyncClient, media_key: str) -> dict | None:
+    async def _get_stream(self, client: AsyncClient, media_key: str):
         params = {
             'client': 'web',
             'use_syndication_guest_id': 'false',
@@ -569,7 +569,7 @@ class Scraper:
 
         return asyncio.run(process())
 
-    def _run(self, operation: tuple[dict, str, str], queries: set | list[int | str | list | dict], **kwargs):
+    def _run(self, operation: tuple[dict, str, str], queries, **kwargs):
         keys, qid, name = operation
         # stay within rate-limits
         if (l := len(queries)) > MAX_ENDPOINT_LIMIT:
@@ -787,7 +787,7 @@ class Scraper:
                 if self.debug:
                     self.logger.error(f'Failed to get chunks\n{e}')
 
-        async def poll_space(client: AsyncClient, space: dict) -> dict | None:
+        async def poll_space(client: AsyncClient, space: dict):
             curr = 0
             lim = 10
             all_chunks = set()

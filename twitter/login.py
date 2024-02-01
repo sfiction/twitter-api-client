@@ -126,7 +126,7 @@ def solve_confirmation_challenge(client: Client, **kwargs) -> Client:
         })
 
 
-def execute_login_flow(client: Client, **kwargs) -> Client | None:
+def execute_login_flow(client: Client, **kwargs):
     client = init_guest_token(client)
     for fn in [flow_start, flow_instrumentation, flow_username, flow_password, flow_duplication_check]:
         client = fn(client)

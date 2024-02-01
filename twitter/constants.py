@@ -109,7 +109,7 @@ class Operation:
     UserMedia = {'userId': int}, 'YqiE3JL1KNgf9nSljYdxaA', 'UserMedia'
     UserTweetsAndReplies = {'userId': int}, 'RIWc55YCNyUJ-U3HHGYkdg', 'UserTweetsAndReplies'
     TweetResultByRestId = {'tweetId': int}, 'D_jNhjWZeRZT5NURzfJZSQ', 'TweetResultByRestId'
-    TweetResultsByRestIds = {'tweetIds': list[int | str]}, 'BWy5aoI-WvwbeSiHUIf2Hw', 'TweetResultsByRestIds'
+    TweetResultsByRestIds = {'tweetIds': list}, 'BWy5aoI-WvwbeSiHUIf2Hw', 'TweetResultsByRestIds'
     TweetDetail = {'focalTweetId': int}, 'zXaXQgfyR4GxE21uwYQSyA', 'TweetDetail'
     TweetStats = {'rest_id': int}, 'EvbTkPDT-xQCfupPu0rWMA', 'TweetStats'
     Likes = {'userId': int}, 'nXEl0lfN_XSznVMlprThgQ', 'Likes'

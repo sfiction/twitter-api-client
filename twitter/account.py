@@ -166,7 +166,7 @@ class Account:
 
         return self.gql('POST', Operation.CreateTweet, variables)
 
-    def schedule_tweet(self, text: str, date: int | str, *, media: list = None) -> dict:
+    def schedule_tweet(self, text: str, date, *, media: list = None) -> dict:
         variables = {
             'post_tweet_request': {
                 'auto_populate_reply_metadata': False,
@@ -188,7 +188,7 @@ class Account:
                     self._add_alt_text(media_id, alt)
         return self.gql('POST', Operation.CreateScheduledTweet, variables)
 
-    def schedule_reply(self, text: str, date: int | str, tweet_id: int, *, media: list = None) -> dict:
+    def schedule_reply(self, text: str, date, tweet_id: int, *, media: list = None) -> dict:
         variables = {
             'post_tweet_request': {
                 'auto_populate_reply_metadata': True,
@@ -480,7 +480,7 @@ class Account:
             res.append(data)
         return res
 
-    def _upload_media(self, filename: str, is_dm: bool = False, is_profile=False) -> int | None:
+    def _upload_media(self, filename: str, is_dm: bool = False, is_profile=False):
         """
         https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/uploading-media/media-best-practices
         """

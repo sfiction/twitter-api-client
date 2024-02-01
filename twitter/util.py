@@ -27,7 +27,7 @@ def init_session():
     return client
 
 
-def batch_ids(ids: list[int | str], char_limit: int = MAX_GQL_CHAR_LIMIT) -> list[list]:
+def batch_ids(ids: list, char_limit: int = MAX_GQL_CHAR_LIMIT) -> list[list]:
     """To avoid 431 errors"""
     res, batch, length = [], [], 0
     for x in map(str, ids):
@@ -45,7 +45,7 @@ def build_params(params: dict) -> dict:
     return {k: orjson.dumps(v).decode() for k, v in params.items()}
 
 
-async def save_json(r: Response, path: str | Path, name: str, **kwargs):
+async def save_json(r: Response, path, name: str, **kwargs):
     try:
         data = r.json()
         kwargs.pop('cursor', None)
@@ -63,10 +63,10 @@ async def save_json(r: Response, path: str | Path, name: str, **kwargs):
         print(f'Failed to save JSON data for {kwargs}\n{e}')
 
 
-def flatten(seq: list | tuple) -> list:
+def flatten(seq) -> list:
     flat = []
     for e in seq:
-        if isinstance(e, list | tuple):
+        if isinstance(e, [list, tuple]):
             flat.extend(flatten(e))
         else:
             flat.append(e)
@@ -96,7 +96,7 @@ def set_qs(url: str, qs: dict, update=False, **kwargs) -> str:
                                      safe=kwargs.get('safe', '')), f))
 
 
-def get_cursor(data: list | dict) -> str:
+def get_cursor(data) -> str:
     # inefficient, but need to deal with arbitrary schema
     entries = find_key(data, 'entries')
     if entries:
@@ -217,7 +217,7 @@ def fmt_status(status: int) -> str:
     return f'[{color}{status}{RESET}]'
 
 
-def get_code(cls, retries=5) -> str | None:
+def get_code(cls, retries=5):
     """ Get verification code from Proton Mail inbox """
 
     def poll_inbox():
