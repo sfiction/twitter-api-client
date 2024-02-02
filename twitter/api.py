@@ -1,7 +1,7 @@
 
 import json
 import sys
-from itertools import groupby
+from itertools import groupby, chain
 from typing import *
 
 from .scraper import Scraper
@@ -85,7 +85,7 @@ class Api:
     def get_tweets(self, tweet_ids: list[Union[str, int]]):
         tweet_ids = list(map(int, tweet_ids))
         tweets = self.scraper.tweets_by_id(tweet_ids)
-        tweets = [build_tweet(tweet[0]['data']['tweetResult']) for tweet in tweets]
+        tweets = [build_tweet(Get(tweet[0], 'data.tweetResult')) for tweet in tweets]
         return tweets
 
     def get_user_tweets(self, *args, **kwargs):
@@ -99,6 +99,16 @@ class Api:
         media = self.get_user_media(*args, **kwargs)
         timeline = [list(gp)[0] for _, gp in groupby(sorted(tweets + media, key=get_id), key=get_id)]
         return timeline
+
+    def get_list(self, list_id: list[Union[str, int]], **kwargs):
+        list_id = str(list_id)
+        rets = self.scraper.list_members([list_id], **kwargs)[0]
+        users = []
+        for ret in rets:
+            insts = Get(ret, 'data.list.members_timeline.timeline.instructions')
+            entries = ([inst for inst in insts if inst['type'] == 'TimelineAddEntries'] or [{}])[0].get('entries', [])
+            users.extend(chain.from_iterable(map(build_timeline_entry, entries)))
+        return users
 
 def main(req_file, screen_name, out=False, **kwargs):
     with open(req_file, encoding='utf-8', newline='\n') as fd:

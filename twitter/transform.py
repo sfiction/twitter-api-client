@@ -1,6 +1,8 @@
 
+import sys
+
 def build_user(obj):
-    obj = obj['user_results']
+    if not 'result' in obj: return None
     obj = obj['result']
     if obj['__typename'] == 'User':
         obj.pop('__typename')
@@ -30,6 +32,7 @@ def build_user(obj):
     return t
 
 def build_tweet(obj):
+    if not 'result' in obj: return None
     obj = obj['result']
     if obj['__typename'] == 'TweetWithVisibilityResults':
         obj = obj['tweet']
@@ -38,7 +41,7 @@ def build_tweet(obj):
     else:
         assert False, f'unknown result.__typename {obj["__typename"]}'
     id_str = obj['rest_id']
-    user = build_user(obj.pop('core'))
+    user = build_user(obj.pop('core')['user_results'])
     obj = obj['legacy']
     obj.pop('extended_entities', None)
 
@@ -86,6 +89,14 @@ def build_tweet(obj):
     assert t['user']['id_str'] == obj.pop('user_id_str')
     return t
 
+def build_timeline_user(obj):
+    obj = obj['itemContent']
+    assert obj['itemType'] == 'TimelineUser', obj['itemType']
+    assert obj['__typename'] == 'TimelineUser', obj['__typename']
+    assert obj['userDisplayType'] == 'User', obj['userDisplayType']
+    obj = obj['user_results']
+    return build_user(obj)
+
 def build_timeline_tweet(obj):
     obj = obj['itemContent']
     # TODO: clientEventInfo
@@ -93,7 +104,6 @@ def build_timeline_tweet(obj):
     assert obj['__typename'] == 'TimelineTweet', obj['__typename']
     assert obj['tweetDisplayType'] in ['Tweet', 'MediaGrid'], obj['tweetDisplayType']
     obj = obj['tweet_results']
-    if not 'result' in obj: return None
     return build_tweet(obj)
 
 def build_timeline_entry(obj):
@@ -123,6 +133,11 @@ def build_timeline_entry(obj):
             assert obj['entryId'].startswith('profile-grid-')
             obj = obj['item']
             ret.append(build_timeline_tweet(obj))
+    elif entry_id.startswith('user-'):
+        obj = obj['content']
+        assert obj['entryType'] == 'TimelineTimelineItem', obj['entryType']
+        assert obj['__typename'] == 'TimelineTimelineItem', obj['__typename']
+        ret = [build_timeline_user(obj)]
     else:
         PREFIXES = [
             'promoted-tweet-',
