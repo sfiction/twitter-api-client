@@ -82,9 +82,19 @@ class Api:
         tweets = [list(gp)[0] for _, gp in groupby(tweets, key=get_id)]
         return tweets
 
-    def get_users(self, screen_names: list[str]):
-        rets = self.scraper.users(screen_names)
-        users = [build_user(Get(ret[0], 'data.user')) for ret in rets]
+    def get_users(self, screen_names: list[str]=[], user_ids: list[int]=[]):
+        users = []
+        if screen_names:
+            rets = self.scraper.users(screen_names)
+            users.extend(build_user(Get(ret[0], 'data.user')) for ret in rets)
+        if user_ids:
+            if len(user_ids) <= 2:
+                rets = self.scraper.users_by_id(user_ids)
+                users.extend(build_user(Get(ret[0], 'data.user')) for ret in rets)
+            else:
+                rets = self.scraper.users_by_ids(user_ids)
+                for ret in rets:
+                    users.extend(build_user(user) for user in Get(ret[0], 'data.users'))
         return users
 
     def get_tweets(self, tweet_ids: list[Union[str, int]]):
