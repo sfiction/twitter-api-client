@@ -243,6 +243,9 @@ class Scraper:
         """
         return self._run(Operation.UserByRestId, user_ids, **kwargs)
 
+    def list_members(self, list_ids: list[str], **kwargs) -> list[dict]:
+        return self._run(Operation.ListMembers, list_ids, **kwargs)
+
     def download_media(self, ids: list[int], photos: bool = True, videos: bool = True, cards: bool = True, hq_img_variant: bool = True, video_thumb: bool = False, out: str = 'media',
                        metadata_out: str = 'media.json', **kwargs) -> dict:
         """

@@ -118,6 +118,7 @@ class Operation:
     Retweeters = {'tweetId': int}, '0BoJlKAxoNPQUHRftlwZ2w', 'Retweeters'
     Favoriters = {'tweetId': int}, 'XRRjv1-uj1HZn3o324etOQ', 'Favoriters'
     ConnectTabTimeline = {'context': dict}, 'lq02A-gEzbLefqTgD_PFzQ', 'ConnectTabTimeline'
+    ListMembers = {'listId': str}, 'MWoWV0Z238TcH-Ap4Gxfmw', 'ListMembers'
 
     # Account Operations
     useSendMessageMutation = 'MaxK2PKX1F9Z-9SwqwavTw', 'useSendMessageMutation'
@@ -258,7 +259,6 @@ class Operation:
     ListCreationRecommendedUsers = 'Zf8ZwG57EKtss-rPlryIqg', 'ListCreationRecommendedUsers'
     ListEditRecommendedUsers = '-F4wsOirYNXjjg-ZjccQpQ', 'ListEditRecommendedUsers'
     ListLatestTweetsTimeline = '2TemLyqrMpTeAmysdbnVqw', 'ListLatestTweetsTimeline'
-    ListMembers = 'vA952kfgGw6hh8KatWnbqw', 'ListMembers'
     ListMemberships = 'BlEXXdARdSeL_0KyKHHvvg', 'ListMemberships'
     ListOwnerships = 'wQcOSjSQ8NtgxIwvYl1lMg', 'ListOwnerships'
     ListPins = 'J0JOhmi8HSsle8LfSWv0cw', 'ListPins'
@@ -370,6 +370,7 @@ class Operation:
         'responsive_web_home_pinned_timelines_enabled': True,
 
         'blue_business_profile_image_shape_enabled': True,
+        'c9s_tweet_anatomy_moderator_badge_enabled': True,
         'creator_subscriptions_tweet_preview_api_enabled': True,
         'freedom_of_speech_not_reach_fetch_enabled': True,
         'graphql_is_translatable_rweb_tweet_is_translatable_enabled': True,
@@ -395,6 +396,7 @@ class Operation:
         'responsive_web_twitter_article_tweet_consumption_enabled': False,
         'responsive_web_twitter_blue_verified_badge_is_enabled': True,
         'rweb_lists_timeline_redesign_enabled': True,
+        'rweb_video_timestamps_enabled': True,
         'spaces_2022_h2_clipping': True,
         'spaces_2022_h2_spaces_communities': True,
         'standardized_nudges_misinfo': True,
