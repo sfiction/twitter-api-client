@@ -5,7 +5,7 @@ from itertools import groupby, chain
 from typing import *
 
 from .scraper import Scraper
-from .transform import build_timeline_entry, build_tweet
+from .transform import build_timeline_entry, build_tweet, build_user
 
 def print_json(obj, **kwargs):
     kwargs = {'indent': 2, 'ensure_ascii': False, 'default': str} | kwargs
@@ -82,10 +82,15 @@ class Api:
         tweets = [list(gp)[0] for _, gp in groupby(tweets, key=get_id)]
         return tweets
 
+    def get_users(self, screen_names: list[str]):
+        rets = self.scraper.users(screen_names)
+        users = [build_user(Get(ret[0], 'data.user')) for ret in rets]
+        return users
+
     def get_tweets(self, tweet_ids: list[Union[str, int]]):
         tweet_ids = list(map(int, tweet_ids))
-        tweets = self.scraper.tweets_by_id(tweet_ids)
-        tweets = [build_tweet(Get(tweet[0], 'data.tweetResult')) for tweet in tweets]
+        rets = self.scraper.tweets_by_id(tweet_ids)
+        tweets = [build_tweet(Get(ret[0], 'data.tweetResult')) for ret in rets]
         return tweets
 
     def get_user_tweets(self, *args, **kwargs):
