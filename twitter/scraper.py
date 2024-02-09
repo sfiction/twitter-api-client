@@ -549,7 +549,7 @@ class Scraper:
         [streams.setdefault(_id, []).append(chunk) for _id, chunk in chunks]
         # ensure chunks are in correct order
         for k, v in streams.items():
-            streams[k] = sorted(v, key=lambda x: int(re.findall('_(\d+)_\w\.aac$', x.url.path)[0]))
+            streams[k] = sorted(v, key=lambda x: int(re.findall(r'_(\d+)_\w\.aac$', x.url.path)[0]))
         out = self.out / 'audio'
         out.mkdir(parents=True, exist_ok=True)
         for space_id, chunks in streams.items():
@@ -757,7 +757,7 @@ class Scraper:
         @param rooms: list of room ids
         @return: None
         """
-        chunk_idx = lambda chunk: re.findall('_(\d+)_\w\.aac', chunk)[0]
+        chunk_idx = lambda chunk: re.findall(r'_(\d+)_\w\.aac', chunk)[0]
         sort_chunks = lambda chunks: sorted(chunks, key=lambda x: int(chunk_idx(x)))
         parse_chunks = lambda txt: re.findall('\n(chunk_.*)\n', txt, flags=re.I)
 
@@ -880,7 +880,7 @@ class Scraper:
     @property
     def id(self) -> int:
         """ Get User ID """
-        return int(re.findall('"u=(\d+)"', self.session.cookies.get('twid'))[0])
+        return int(re.findall(r'"u=(\d+)"', self.session.cookies.get('twid'))[0])
 
     def save_cookies(self, fname: str = None):
         """ Save cookies to file """
