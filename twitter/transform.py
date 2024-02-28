@@ -124,10 +124,14 @@ def build_timeline_entry(obj):
             obj = obj['item']
             ret.append(build_timeline_tweet(obj))
     elif entry_id.startswith('profile-grid-'):
-        obj = obj['content']
-        assert obj['entryType'] == 'TimelineTimelineModule', obj['entryType']
-        assert obj['__typename'] == 'TimelineTimelineModule', obj['__typename']
-        items = obj['items']
+        items = []
+        if 'content' in obj:
+            obj = obj['content']
+            assert obj['entryType'] == 'TimelineTimelineModule', obj['entryType']
+            assert obj['__typename'] == 'TimelineTimelineModule', obj['__typename']
+            items = obj['items']
+        if 'item' in obj:
+            items.append(obj)
         ret = []
         for obj in items:
             assert obj['entryId'].startswith('profile-grid-')

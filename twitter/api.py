@@ -53,6 +53,9 @@ class Api:
             if inst['type'] != 'TimelineClearCache']
         pin_entry = ([inst for inst in insts if inst['type'] == 'TimelinePinEntry'] or [{}])[0].get('entry', None)
         entries = ([inst for inst in insts if inst['type'] == 'TimelineAddEntries'] or [{}])[0].get('entries', [])
+        entries2 = ([inst for inst in insts if inst['type'] == 'TimelineAddToModule'] or [{}])[0].get('moduleItems', [])
+        entries += entries2
+
         cursor = get_cursor(entries)
         entries = [entry for entry in entries]
         if pin_entry:
