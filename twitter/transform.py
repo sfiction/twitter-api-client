@@ -63,6 +63,9 @@ def build_tweet(obj):
                 media.pop('indices', None)
                 media['original_info'].pop('focus_rects', None)
                 media['id'] = int(media['id_str'])
+                if 'additional_media_info' in media:
+                    media['additional_media_info'].pop('source_user', None)
+
         if 'hashtags' in entities:
             t['hashtags'] = [tag['text'] for tag in entities['hashtags']]
         if 'urls' in entities:
